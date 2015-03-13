@@ -1,18 +1,19 @@
-A Rust port of smallpt, http://www.kevinbeason.com/smallpt/. 
+# smallpt_rust
+
+A Rust port of [smallpt](http://www.kevinbeason.com/smallpt/). 
 All credit for the original smallpt goes to Kevin Beason.
 
-This project was created as a Rust learning experience and is not written for
-maximal performance or meant to be squised into 99 lines as the original
+This project was created as a Rust learning experience. It has not been written
+for maximal performance or is meant to be squished into 99 lines as the original
 project.
 
-To build smallpt_rust, install Rust alpha2, cd into the root folder and execute
-$cargo build --release
+To build smallpt_rust, install Rust alpha2, cd into the root folder and execute *$cargo build --release*
 
-Execute by $./target/release/smallpt_rust <samples_pr_pixel>
+Execute by *$./target/release/smallpt_rust \<samples\_pr\_pixel\>*
 
-Future work
-1) ERPT
-2) QMC RNG
-3) A-Trous filter
-4) ???
+Future work  
+1) ERPT  
+2) QMC RNG  
+3) A-Trous filter  
+4) ???  
 5) Profit!
