@@ -1,0 +1,12 @@
+[package]
+
+name = "smallpt_rust"
+version = "0.1.0"
+authors = [ "Asger Hoedt <asgerhoedt@gmail.com>" ]
+
+[[bin]]
+
+name = "smallpt_rust"
+
+[dependencies]
+rand = "0.1.3"
