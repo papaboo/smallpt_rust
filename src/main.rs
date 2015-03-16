@@ -7,7 +7,7 @@
 // Own QMC rand implementation
 
 // Warnings go away!
-#![feature(env, old_io, old_path, os, std_misc)]
+#![feature(env, old_io, old_path, os, std_misc, core)]
 
 use std::num::Float;
 use std::ops::{Add, Sub, Mul};
@@ -15,7 +15,7 @@ use std::thread;
 
 extern crate rand;
 
-static PI: f64 = 3.14159265358979323846264338327950288_f64;
+use std::f64::consts::PI;
 
 #[derive(Copy, Clone)]
 struct Vec {
