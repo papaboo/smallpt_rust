@@ -106,7 +106,7 @@ struct Sphere {
     position : Vec,
     emission : Vec,
     albedo : Vec,
-    bsdf : BSDF
+    bsdf : BSDF,
 }
 
 impl Sphere {
