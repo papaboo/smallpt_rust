@@ -21,7 +21,7 @@ use std::f64::consts::PI;
 struct Vec {
     x : f64,
     y : f64,
-    z : f64
+    z : f64,
 }
 
 impl Vec {
