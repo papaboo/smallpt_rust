@@ -7,7 +7,7 @@
 // Own QMC rand implementation
 
 // Warnings go away!
-#![feature(env, old_io, old_path, os, std_misc, core)]
+#![feature(old_io, old_path, os, std_misc, core)]
 
 use std::num::Float;
 use std::ops::{Add, Sub, Mul};
