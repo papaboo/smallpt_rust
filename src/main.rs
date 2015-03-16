@@ -170,8 +170,7 @@ fn radiance_estimation(ray:Ray, scene: &[Sphere], depth:i32) -> Vec {
     let intersection: Option<(&Sphere, f64)> = intersect_scene(ray, scene);
     match intersection {
         None => Vec::zero(),
-        Some (_i) => {
-            let (sphere, t) = _i; // Why oh why can't I match the tuple directly.
+        Some ((sphere, t)) => {
             let position = ray.origin + ray.direction * t;
             let hard_normal = (position - sphere.position).normalized();
             let forward_normal = if Vec::dot(hard_normal, ray.direction) < 0.0 { hard_normal } else { hard_normal * -1.0 };
