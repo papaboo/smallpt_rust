@@ -1,5 +1,5 @@
-// smallpt in rust. Functionally inspired by smallpt by Kevin Beason.
-//                  http://www.kevinbeason.com/smallpt/
+//! smallpt in rust. Functionally inspired by smallpt by Kevin Beason.
+//!                  http://www.kevinbeason.com/smallpt/
 
 // TODO
 // Stable file IO?
