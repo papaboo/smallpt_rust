@@ -1,5 +1,5 @@
-// smallpt in rust. Functionally inspired by smallpt by Kevin Beason.
-//                  http://www.kevinbeason.com/smallpt/
+//! smallpt in rust. Functionally inspired by smallpt by Kevin Beason.
+//!                  http://www.kevinbeason.com/smallpt/
 
 // TODO
 // Stable file IO?
@@ -7,7 +7,7 @@
 // Own QMC rand implementation
 
 // Warnings go away!
-#![feature(env, old_io, old_path, os, std_misc)]
+#![feature(old_io, old_path, os, std_misc, core)]
 
 use std::num::Float;
 use std::ops::{Add, Sub, Mul};
@@ -15,17 +15,17 @@ use std::thread;
 
 extern crate rand;
 
-static PI: f64 = 3.14159265358979323846264338327950288_f64;
+use std::f64::consts::PI;
 
 #[derive(Copy, Clone)]
 struct Vec {
-    x : f64,
-    y : f64,
-    z : f64
+    x: f64,
+    y: f64,
+    z: f64,
 }
 
 impl Vec {
-    fn new(x : f64, y : f64, z : f64) -> Vec {
+    fn new(x: f64, y: f64, z: f64) -> Vec {
         Vec { x:x, y:y, z:z }
     }
 
@@ -93,8 +93,8 @@ fn luma(color:Vec) -> f64 {
 
 #[derive(Copy, Clone)]
 struct Ray {
-    origin : Vec,
-    direction : Vec,
+    origin: Vec,
+    direction: Vec,
 }
 
 #[derive(Copy, Clone)]
@@ -102,25 +102,25 @@ enum BSDF { Diffuse, Mirror, Glass }
 
 #[derive(Copy, Clone)]
 struct Sphere {
-    radius : f64,
-    position : Vec,
-    emission : Vec,
-    albedo : Vec,
-    bsdf : BSDF
+    radius: f64,
+    position: Vec,
+    emission: Vec,
+    albedo: Vec,
+    bsdf: BSDF,
 }
 
 impl Sphere {
-    fn new(radius : f64, position : Vec, emission : Vec, albedo : Vec, bsdf : BSDF) -> Sphere{
+    fn new(radius: f64, position: Vec, emission: Vec, albedo: Vec, bsdf: BSDF) -> Sphere{
         Sphere { radius:radius, position:position, emission:emission, albedo:albedo, bsdf:bsdf } 
     }
 }
 
 // returns distance, infinity if no hit.
-fn intersect(ray : Ray, sphere: &Sphere) -> f64{
+fn intersect(ray: Ray, sphere: &Sphere) -> f64{
     // Solve t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0
-    let op : Vec = sphere.position - ray.origin;
-    let b : f64 = Vec::dot(op, ray.direction);
-    let det_sqrd : f64 = b * b - Vec::dot(op,op) + sphere.radius * sphere.radius;
+    let op: Vec = sphere.position - ray.origin;
+    let b: f64 = Vec::dot(op, ray.direction);
+    let det_sqrd: f64 = b * b - Vec::dot(op,op) + sphere.radius * sphere.radius;
     if det_sqrd < 0.0 {
         return Float::infinity();
     }
@@ -135,11 +135,11 @@ fn intersect(ray : Ray, sphere: &Sphere) -> f64{
     }
 }
 
-fn clamp01(v:f64) -> f64 { 
+fn clamp01(v: f64) -> f64 { 
     v.max(0.0).min(1.0) 
 }
 
-fn tonemap_255(c:f64) -> u8 {
+fn tonemap_255(c: f64) -> u8 {
     (clamp01(c).powf(1.0 / 2.2) * 255.0 + 0.5) as u8
 }
 
@@ -167,11 +167,10 @@ fn intersect_scene(ray: Ray, scene: &[Sphere]) -> Option<(&Sphere, f64)> {
 }
 
 fn radiance_estimation(ray:Ray, scene: &[Sphere], depth:i32) -> Vec {
-    let intersection : Option<(&Sphere, f64)> = intersect_scene(ray, scene);
+    let intersection: Option<(&Sphere, f64)> = intersect_scene(ray, scene);
     match intersection {
         None => Vec::zero(),
-        Some (_i) => {
-            let (sphere, t) = _i; // Why oh why can't I match the tuple directly.
+        Some ((sphere, t)) => {
             let position = ray.origin + ray.direction * t;
             let hard_normal = (position - sphere.position).normalized();
             let forward_normal = if Vec::dot(hard_normal, ray.direction) < 0.0 { hard_normal } else { hard_normal * -1.0 };
@@ -193,7 +192,7 @@ fn radiance_estimation(ray:Ray, scene: &[Sphere], depth:i32) -> Vec {
                     let r2s = r2.sqrt();
                     let wup = if forward_normal.x.abs() > 0.1 { Vec::new(0.0, 1.0, 0.0) } else { Vec::new(1.0, 0.0, 0.0) };
                     let tangent = Vec::cross(forward_normal, wup).normalized();
-                    let bitangent = Vec::cross(forward_normal, tangent).normalized(); // Normalize due to precision (although probably not needed when using f64 :))
+                    let bitangent = Vec::cross(forward_normal, tangent).normalized(); // Normalize due to precision (although probably not needed when using f64:))
                     let next_direction = tangent * r1.cos() * r2s + bitangent * r1.sin() * r2s + forward_normal * (1.0 - r2).sqrt();
                     radiance_estimation(Ray { origin: position, direction: next_direction.normalized() }, scene, depth+1)
                 },
@@ -257,8 +256,8 @@ fn main() {
                  Sphere::new(16.5,Vec::new(73.0,16.5,78.0),         Vec::zero(),              Vec::new(0.999,0.999,0.999), BSDF::Glass),    //Glass
                  Sphere::new(600.0, Vec::new(50.0,681.6-0.27,81.6), Vec::new(12.0,12.0,12.0), Vec::zero(),                 BSDF::Diffuse)]; //Light
 
-    const WIDTH : usize = 512;
-    const HEIGHT : usize = 384;
+    const WIDTH: usize = 512;
+    const HEIGHT: usize = 384;
     let samples = match std::env::args().nth(1) {
                       Some(samples_str) => {
                           match samples_str.parse::<i32>() {
@@ -325,7 +324,7 @@ fn main() {
     }
 
     // Create PPM file content.
-    let mut ppm : String = format!("P3\n{} {}\n{}\n", WIDTH, HEIGHT, 255);
+    let mut ppm: String = format!("P3\n{} {}\n{}\n", WIDTH, HEIGHT, 255);
     for p in 0..WIDTH*HEIGHT {
         let pixel = backbuffer[p];
         let rgb_string = format!("{} {} {} ", tonemap_255(pixel.x), tonemap_255(pixel.y), tonemap_255(pixel.z));
