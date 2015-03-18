@@ -1,5 +1,7 @@
 # smallpt_rust
 
+![Cornell Sphere](image.png)
+
 A Rust port of [smallpt](http://www.kevinbeason.com/smallpt/). 
 All credit for the original smallpt goes to Kevin Beason.
 
@@ -14,6 +16,6 @@ Execute by *$./target/release/smallpt_rust \<samples\_pr\_pixel\>*
 Future work  
 1) ERPT  
 2) QMC RNG  
-3) A-Trous filter  
+3) Radiance filter  
 4) ???  
 5) Profit!
