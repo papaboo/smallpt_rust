@@ -1,1 +1,12 @@
-target/
+# Cargo files
+/target/
+
+# Rustdoc files
+/doc/
+
+# Program output
+/*.png
+/*.ppm
+
+# OS X file attributes
+.DS_Store
