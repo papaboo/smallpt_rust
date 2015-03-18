@@ -1,13 +1,8 @@
 //! smallpt in rust. Functionally inspired by smallpt by Kevin Beason.
 //!                  http://www.kevinbeason.com/smallpt/
 
-// TODO
-// Stable file IO?
-// Static struct local vars?
-// Own QMC rand implementation
-
 // Warnings go away!
-#![feature(old_io, old_path, os, std_misc, core)]
+#![feature(env, old_io, old_path, os, std_misc, core)]
 
 use std::num::Float;
 use std::ops::{Add, Sub, Mul};
@@ -26,7 +21,7 @@ struct Vec {
 
 impl Vec {
     fn new(x: f64, y: f64, z: f64) -> Vec {
-        Vec { x:x, y:y, z:z }
+        Vec { x: x, y: y, z: z }
     }
 
     fn zero() -> Vec { Vec { x:0.0, y:0.0, z:0.0 } }
@@ -87,7 +82,7 @@ impl Mul<f64> for Vec {
     }
 }
 
-fn luma(color:Vec) -> f64 {
+fn luma(color: Vec) -> f64 {
     0.299 * color.x + 0.587 * color.y + 0.114 * color.z
 }
 
@@ -111,7 +106,7 @@ struct Sphere {
 
 impl Sphere {
     fn new(radius: f64, position: Vec, emission: Vec, albedo: Vec, bsdf: BSDF) -> Sphere{
-        Sphere { radius:radius, position:position, emission:emission, albedo:albedo, bsdf:bsdf } 
+        Sphere { radius: radius, position: position, emission: emission, albedo: albedo, bsdf: bsdf } 
     }
 }
 
@@ -166,7 +161,7 @@ fn intersect_scene(ray: Ray, scene: &[Sphere]) -> Option<(&Sphere, f64)> {
     }
 }
 
-fn radiance_estimation(ray:Ray, scene: &[Sphere], depth:i32) -> Vec {
+fn radiance_estimation(ray: Ray, scene: &[Sphere], depth: i32) -> Vec {
     let intersection: Option<(&Sphere, f64)> = intersect_scene(ray, scene);
     match intersection {
         None => Vec::zero(),
@@ -257,7 +252,7 @@ fn main() {
                  Sphere::new(600.0, Vec::new(50.0,681.6-0.27,81.6), Vec::new(12.0,12.0,12.0), Vec::zero(),                 BSDF::Diffuse)]; //Light
 
     const WIDTH: usize = 512;
-    const HEIGHT: usize = 384;
+    const HEIGHT: usize = 512;
     let samples = match std::env::args().nth(1) {
                       Some(samples_str) => {
                           match samples_str.parse::<i32>() {
@@ -269,7 +264,7 @@ fn main() {
                   };
 
     let cam = Ray { origin: Vec::new(50.0, 52.0, 295.6), direction: Vec::new(0.0, -0.042612, -1.0).normalized() };
-    let cx = Vec { x: WIDTH as f64 * 0.5135 / HEIGHT as f64, y:0.0, z:0.0 } ;
+    let cx = Vec { x: WIDTH as f64 * 0.5135 / HEIGHT as f64, y: 0.0, z: 0.0 } ;
     let cy = Vec::cross(cx, cam.direction).normalized() * 0.5135;
     
     // Fill backbuffer multithreaded
@@ -285,7 +280,7 @@ fn main() {
             let inner_chunks = std::os::num_cpus() * std::os::num_cpus();
             let inner_chunk_size = ceil_divide(outer_chunk_size, inner_chunks);
             
-            // Create and launch threads.
+            // Create and launch threads. Automatically joins when going out of scope.
             let mut threads = std::vec::Vec::with_capacity(inner_chunks);
             for (inner_chunk_index, inner_chunk) in outer_chunk.chunks_mut(inner_chunk_size).enumerate() {
                 threads.push(thread::scoped(move || {
@@ -315,10 +310,6 @@ fn main() {
                         inner_chunk[i] = radiance * (0.25 / samples as f64);
                     }
                 }))
-            }
-            
-            for thread in threads {
-                thread.join()
             }
         }
     }
