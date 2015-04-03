@@ -1,13 +1,12 @@
 //! smallpt in rust. Functionally inspired by smallpt by Kevin Beason.
 //!                  http://www.kevinbeason.com/smallpt/
 
+use std::f64::consts::PI;
 use std::io::Write;
 use std::ops::{Add, Sub, Mul};
 use std::thread;
 
 extern crate rand;
-
-use std::f64::consts::PI;
 
 #[derive(Copy, Clone)]
 struct Float3 {
@@ -275,7 +274,7 @@ fn main() {
             
             println!("\rRendering ({} spp) {}%", samples*4, outer_chunk_index);
 
-            //let inner_chunks = std::os::num_cpus() * std::os::num_cpus();
+            //let inner_chunks = std::os::num_cpus() * std::os::num_cpus(); // DEPRECATED: Hardcoded to chunk count of 16 for now.
             let inner_chunks = 16;
             let inner_chunk_size = ceil_divide(outer_chunk_size, inner_chunks);
             
