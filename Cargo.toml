@@ -1,8 +1,8 @@
 [package]
 
 name = "smallpt_rust"
-version = "0.1.0"
+version = "0.2.0"
 authors = [ "Asger Hoedt <asgerhoedt@gmail.com>" ]
 
 [dependencies]
-rand = "0.1.3"
+rand = "0.3.7"

@@ -1,10 +1,7 @@
 //! smallpt in rust. Functionally inspired by smallpt by Kevin Beason.
 //!                  http://www.kevinbeason.com/smallpt/
 
-// Warnings go away!
-#![feature(env, old_io, old_path, os, std_misc, core)]
-
-use std::num::Float;
+use std::io::Write;
 use std::ops::{Add, Sub, Mul};
 use std::thread;
 
@@ -32,8 +29,8 @@ impl Float3 {
 
     fn cross(lhs: Float3, rhs: Float3) -> Float3 {
         Float3 { x: lhs.y * rhs.z - lhs.z * rhs.y,
-              y: lhs.z * rhs.x - lhs.x * rhs.z,
-              z: lhs.x * rhs.y - lhs.y * rhs.x }
+                 y: lhs.z * rhs.x - lhs.x * rhs.z,
+                 z: lhs.x * rhs.y - lhs.y * rhs.x }
     }
 
     fn length(self) -> f64 {
@@ -50,8 +47,8 @@ impl Add for Float3 {
     type Output = Float3;
     fn add(self, rhs: Float3) -> Float3 {
         Float3 { x: self.x + rhs.x,
-              y: self.y + rhs.y,
-              z: self.z + rhs.z }
+                 y: self.y + rhs.y,
+                 z: self.z + rhs.z }
     }
 }
 
@@ -59,8 +56,8 @@ impl Sub for Float3 {
     type Output = Float3;
     fn sub(self, rhs: Float3) -> Float3 {
         Float3 { x: self.x - rhs.x,
-              y: self.y - rhs.y,
-              z: self.z - rhs.z }
+                 y: self.y - rhs.y,
+                 z: self.z - rhs.z }
     }
 }
 
@@ -68,8 +65,8 @@ impl Mul for Float3 {
     type Output = Float3;
     fn mul(self, rhs: Float3) -> Float3 {
         Float3 { x: self.x * rhs.x,
-              y: self.y * rhs.y,
-              z: self.z * rhs.z }
+                 y: self.y * rhs.y,
+                 z: self.z * rhs.z }
     }
 }
 
@@ -77,8 +74,8 @@ impl Mul<f64> for Float3 {
     type Output = Float3;
     fn mul(self, rhs: f64) -> Float3 {
         Float3 { x: self.x * rhs,
-              y: self.y * rhs,
-              z: self.z * rhs }
+                 y: self.y * rhs,
+                 z: self.z * rhs }
     }
 }
 
@@ -117,7 +114,7 @@ fn intersect(ray: Ray, sphere: &Sphere) -> f64{
     let b: f64 = Float3::dot(op, ray.direction);
     let det_sqrd: f64 = b * b - Float3::dot(op,op) + sphere.radius * sphere.radius;
     if det_sqrd < 0.0 {
-        return Float::infinity();
+        return std::f64::INFINITY;
     }
 
     let det = det_sqrd.sqrt();
@@ -126,7 +123,7 @@ fn intersect(ray: Ray, sphere: &Sphere) -> f64{
     } else if b + det > 0.0 {
         b + det
     } else {
-        Float::infinity()
+        std::f64::INFINITY
     }
 }
 
@@ -144,7 +141,7 @@ fn ceil_divide(dividend:usize, divisor:usize) -> usize {
 }
 
 fn intersect_scene(ray: Ray, scene: &[Sphere]) -> Option<(&Sphere, f64)> {
-    let mut res = (0, Float::infinity());
+    let mut res = (0, std::f64::INFINITY);
     for s in 0..scene.len() {
         let t = intersect(ray, &scene[s]);
         let (_, prev_t) = res;
@@ -154,7 +151,7 @@ fn intersect_scene(ray: Ray, scene: &[Sphere]) -> Option<(&Sphere, f64)> {
     }
     
     let (index, t) = res;
-    if t == Float::infinity() {
+    if t == std::f64::INFINITY {
         None
     } else {
         Some((&scene[index], t))
@@ -241,15 +238,15 @@ fn radiance_estimation(ray: Ray, scene: &[Sphere], depth: i32) -> Float3 {
 
 fn main() {
     
-    let scene = [Sphere::new(1e5, Float3::new(1e5+1.0,40.8,81.6),      Float3::zero(),              Float3::new(0.75,0.25,0.25),    BSDF::Diffuse),  //Left
-                 Sphere::new(1e5, Float3::new(-1e5+99.0,40.8,81.6),    Float3::zero(),              Float3::new(0.25,0.25,0.75),    BSDF::Diffuse),  //Right
-                 Sphere::new(1e5, Float3::new(50.0,40.8, 1e5),         Float3::zero(),              Float3::new(0.75,0.75,0.75),    BSDF::Diffuse),  //Back
-                 Sphere::new(1e5, Float3::new(50.0,40.8,-1e5+170.0),   Float3::zero(),              Float3::zero(),                 BSDF::Diffuse),  //Front
-                 Sphere::new(1e5, Float3::new(50.0, 1e5, 81.6),        Float3::zero(),              Float3::new(0.75,0.75,0.75),    BSDF::Diffuse),  //Bottom
-                 Sphere::new(1e5, Float3::new(50.0,-1e5+81.6,81.6),    Float3::zero(),              Float3::new(0.75,0.75,0.75),    BSDF::Diffuse),  //Top
-                 Sphere::new(16.5,Float3::new(27.0,16.5,47.0),         Float3::zero(),              Float3::new(0.999,0.999,0.999), BSDF::Mirror),   //Mirror
-                 Sphere::new(16.5,Float3::new(73.0,16.5,78.0),         Float3::zero(),              Float3::new(0.999,0.999,0.999), BSDF::Glass),    //Glass
-                 Sphere::new(600.0, Float3::new(50.0,681.6-0.27,81.6), Float3::new(12.0,12.0,12.0), Float3::zero(),                 BSDF::Diffuse)]; //Light
+    let scene = [Sphere::new(1e5, Float3::new(1e5+1.0,40.8,81.6),    Float3::zero(),              Float3::new(0.75,0.25,0.25),    BSDF::Diffuse),  //Left
+                 Sphere::new(1e5, Float3::new(-1e5+99.0,40.8,81.6),  Float3::zero(),              Float3::new(0.25,0.25,0.75),    BSDF::Diffuse),  //Right
+                 Sphere::new(1e5, Float3::new(50.0,40.8, 1e5),       Float3::zero(),              Float3::new(0.75,0.75,0.75),    BSDF::Diffuse),  //Back
+                 Sphere::new(1e5, Float3::new(50.0,40.8,-1e5+170.0), Float3::zero(),              Float3::zero(),                 BSDF::Diffuse),  //Front
+                 Sphere::new(1e5, Float3::new(50.0, 1e5, 81.6),      Float3::zero(),              Float3::new(0.75,0.75,0.75),    BSDF::Diffuse),  //Bottom
+                 Sphere::new(1e5, Float3::new(50.0,-1e5+81.6,81.6),  Float3::zero(),              Float3::new(0.75,0.75,0.75),    BSDF::Diffuse),  //Top
+                 Sphere::new(16.5,Float3::new(27.0,16.5,47.0),       Float3::zero(),              Float3::new(0.999,0.999,0.999), BSDF::Mirror),   //Mirror
+                 Sphere::new(16.5,Float3::new(73.0,16.5,78.0),       Float3::zero(),              Float3::new(0.999,0.999,0.999), BSDF::Glass),    //Glass
+                 Sphere::new(600.0, Float3::new(50.0,681.33,81.6),   Float3::new(12.0,12.0,12.0), Float3::zero(),                 BSDF::Diffuse)]; //Light
 
     const WIDTH: usize = 512;
     const HEIGHT: usize = 512;
@@ -273,11 +270,13 @@ fn main() {
         let outer_chunks = 100;
         let outer_chunk_size = ceil_divide(WIDTH * HEIGHT, outer_chunks);
 
+        // NOTE Can I replace chunks_mut(_).enumerate by take? Or does that break ownership?
         for (outer_chunk_index, outer_chunk) in backbuffer.chunks_mut(outer_chunk_size).enumerate() {
             
             println!("\rRendering ({} spp) {}%", samples*4, outer_chunk_index);
 
-            let inner_chunks = std::os::num_cpus() * std::os::num_cpus();
+            //let inner_chunks = std::os::num_cpus() * std::os::num_cpus();
+            let inner_chunks = 16;
             let inner_chunk_size = ceil_divide(outer_chunk_size, inner_chunks);
             
             // Create and launch threads. Automatically joins when going out of scope.
@@ -323,14 +322,14 @@ fn main() {
     }
 
     // Write content to PPM file.
-    let image_path = Path::new("image.ppm");
-    let mut file = match std::old_io::File::create(&image_path) {
-        Err(why) => panic!("couldn't create image.ppm: {}", why.desc),
+    let image_path = std::path::Path::new("image.ppm");
+    let mut file = match std::fs::File::create(&image_path) {
+        Err(why) => panic!("couldn't create image.ppm: {}", why),
         Ok(file) => file,
     };
     
-    match file.write_str(&ppm) {
-        Err(why) => panic!("couldn't write to image.ppm: {}", why.desc),
+    match file.write_all(ppm.as_bytes()) {
+        Err(why) => panic!("couldn't write to image.ppm: {}", why),
         Ok(_) => {},
     };
 }
