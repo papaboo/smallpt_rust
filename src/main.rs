@@ -6,6 +6,7 @@ use std::io::Write;
 use std::ops::{Add, Sub, Mul};
 use std::thread;
 
+extern crate num_cpus;
 extern crate rand;
 
 #[derive(Copy, Clone)]
@@ -274,8 +275,8 @@ fn main() {
             
             println!("\rRendering ({} spp) {}%", samples*4, outer_chunk_index);
 
-            //let inner_chunks = std::os::num_cpus() * std::os::num_cpus(); // DEPRECATED: Hardcoded to chunk count of 16 for now.
-            let inner_chunks = 16;
+            let num_cpus = num_cpus::get();
+            let inner_chunks = num_cpus * num_cpus;
             let inner_chunk_size = ceil_divide(outer_chunk_size, inner_chunks);
             
             // Create and launch threads. Automatically joins when going out of scope.
